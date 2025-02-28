@@ -25,7 +25,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FloatingSymbolsBackground(
     modifier: Modifier = Modifier,

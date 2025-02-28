@@ -51,7 +51,6 @@ import com.example.numsprint.ui.theme.fontFamily_score
 import com.example.numsprint.viewmodel.GameSessionViewModel
 import kotlinx.coroutines.delay
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Endless() {
     val viewModel: GameSessionViewModel = viewModel()
