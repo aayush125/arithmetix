@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.numsprint.data.PreferenceDataStoreHelper
 import com.example.numsprint.model.AppThemeNames
+import com.example.numsprint.ui.components.FloatingSymbolsBackground
 import com.example.numsprint.ui.theme.AppTheme
 import com.example.numsprint.ui.theme.NumSprintTheme
 import com.example.numsprint.utils.NumSprintScreens
@@ -49,13 +50,17 @@ class MainActivity : ComponentActivity() {
                         startDestination = NumSprintScreens.StarterScreen.name
                     ) {
                         composable(route = NumSprintScreens.TestScreen.name) {
-                            TestScreen()
+//                            TestScreenV2()
+                            FloatingSymbolsBackground()
                         }
                         composable(route = NumSprintScreens.StarterScreen.name) {
                             StarterScreen(navController)
                         }
                         composable(route = NumSprintScreens.Endless.name) {
                             Endless()
+                        }
+                        composable(route = NumSprintScreens.TimeAttack.name) {
+                            TimeAttack()
                         }
                         composable(route = NumSprintScreens.ThemeSelect.name) {
                             ThemeSelect(viewModel = themeViewModel)

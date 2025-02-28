@@ -9,6 +9,12 @@ import com.example.numsprint.model.toExpressionString
 import com.example.numsprint.utils.generateProblem
 import kotlin.math.abs
 
+data class PreviousProblem (
+    val problem: String,
+    val solution: String,
+    val wasCorrect: Boolean
+)
+
 class GameSessionViewModel() : ViewModel() {
     // Current user-entered answer
     var currentAnswer by mutableStateOf("")
@@ -20,6 +26,9 @@ class GameSessionViewModel() : ViewModel() {
 
     // Current problem
     var problem by mutableStateOf("")
+        private set
+
+    var previousProblem by mutableStateOf(PreviousProblem("", "",false))
         private set
 
     // Current problem's solution
@@ -102,10 +111,13 @@ class GameSessionViewModel() : ViewModel() {
         val correct = checkAnswer(solution, currentAnswer)
         if (correct) {
             score += 1
+            previousProblem = PreviousProblem(problem, currentAnswer, true)
             answerCorrect = true
             transitioning = true
+            cleanUpAndNext()
         } else {
             score = 0
+            previousProblem = PreviousProblem(problem, currentAnswer, false)
             answerCorrect = false
             // filling in for now, change to a proper incorrect answer animation and transition to a game over screen
             cleanUpAndNext()

@@ -10,6 +10,10 @@ fun randomIntFromInterval(min: Int, max: Int): Int {
     return Random.nextInt(min, max + 1)
 }
 
+// NOTES: First, positive number additions only. Then, additions and subtractions, followed by multiplications only.
+// ...Then, divisions only. Then, maybe a fix of multiplication and addition/subtraction. Then, a mix of multiplication division.
+// ... Finally, a mix of all these operations.
+
 fun getDifficultyLevel(score: Int): DifficultyConfig {
     return when {
         score < 5 -> DifficultyConfig(

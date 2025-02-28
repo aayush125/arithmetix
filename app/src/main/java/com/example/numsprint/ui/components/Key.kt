@@ -2,6 +2,9 @@ package com.example.numsprint.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,11 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.numsprint.ui.theme.fontFamily_keys
 import com.example.numsprint.utils.cornerRadius
 
 @Composable
@@ -44,6 +50,16 @@ fun KeypadKey(text: String, fontSize: TextUnit, onClick: () -> Unit, modifier: M
         },
         label = "ButtonBackground"
     )
+
+    val textSize by animateFloatAsState(
+        targetValue = if (isPressed) (fontSize.value - 12) else fontSize.value,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,  // Controls the bounciness
+            stiffness = Spring.StiffnessMedium              // Controls the speed of animation
+        ),
+        label = "TextSize"
+    )
+
 
     val textColor by animateColorAsState(
         targetValue = if (isPressed) Color.White else colors.onSurface,
@@ -68,16 +84,17 @@ fun KeypadKey(text: String, fontSize: TextUnit, onClick: () -> Unit, modifier: M
     Box(
         modifier = Modifier
             .then(modifier)
-            .background(backgroundColor, CircleShape)
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
-            .border(width = 0.8.dp, color = borderColor, shape = CircleShape),
+//            .background(backgroundColor, CircleShape)
+            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+//            .border(width = 0.8.dp, color = borderColor, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = textColor,
-            fontSize = fontSize,
-            textAlign = TextAlign.Center
+            fontSize = textSize.sp,
+            fontFamily = fontFamily_keys,
+            fontWeight = FontWeight(900),
+            textAlign = TextAlign.Center,
         )
     }
 }

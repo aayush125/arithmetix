@@ -29,19 +29,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.numsprint.utils.cornerRadius
 
 @Composable
 fun UIButton(
     onClick: () -> Unit,
     buttonText: String,
-    enabled: Boolean,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     height: Dp = 30.dp,
     width: Dp = 100.dp,
     fontSize: TextUnit = 24.sp
 ) {
     val colors = MaterialTheme.colorScheme
-    val cornerRadius = 8.dp
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -54,14 +54,14 @@ fun UIButton(
     )
 
     val textColor by animateColorAsState(
-        targetValue = if (isPressed) Color.White else colors.onSurface,
+        targetValue = if (isPressed) colors.onPrimary else colors.onBackground,
         animationSpec = if (isPressed) tween(durationMillis = 10)
         else tween(durationMillis = 500, easing = LinearOutSlowInEasing),
         label = "TextColor"
     )
 
     val borderColor by animateColorAsState(
-        targetValue = if (isPressed) Color.Transparent else Color.LightGray,
+        targetValue = if (isPressed) Color.Transparent else colors.surface,
         animationSpec = if (isPressed) tween(durationMillis = 10)
         else tween(durationMillis = 100, easing = LinearOutSlowInEasing),
         label = "BorderColor"
@@ -74,17 +74,16 @@ fun UIButton(
     ) {
         Box(
             modifier = Modifier
+                .then(modifier)
                 .padding(10.dp)
                 .background(backgroundColor, RoundedCornerShape(cornerRadius))
                 .border(2.dp, borderColor, RoundedCornerShape(cornerRadius))
-                .then(modifier)
-                .height(height)
-                .width(width)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick
-                ),
+                )
+                .padding(10.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(

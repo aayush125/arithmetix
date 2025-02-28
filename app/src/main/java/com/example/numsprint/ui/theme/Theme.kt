@@ -145,9 +145,14 @@ private val BlueColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xffcab18e),
-    secondary = Color(0xffE9D6B2),
-    tertiary = Color(0xffac734f)
+    primary = Color(0xff008cff),
+    secondary = Color(0xff5e77cb),
+    tertiary = Color(0xffFACC15),
+    background = Color(0xffF9FAFB),
+    onBackground = Color(0xff58585a),
+    surface = Color(0xfff0f2f8),
+    onSurface = Color(0xff58585a),
+    onPrimary = Color(0xffe0f3f8),
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -196,7 +201,7 @@ fun NumSprintTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = TomorrowTypography,
         content = content
     )
 }
