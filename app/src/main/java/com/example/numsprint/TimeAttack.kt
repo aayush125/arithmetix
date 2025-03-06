@@ -2,11 +2,17 @@ package com.example.numsprint
 
 import android.graphics.Paint.Align
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,18 +44,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.numsprint.ui.components.Keypad
+import com.example.numsprint.ui.components.ProblemComponentV2
+import com.example.numsprint.ui.components.ScoreBox
+import com.example.numsprint.ui.components.ScoreComponent
 import com.example.numsprint.ui.components.Timer
+import com.example.numsprint.utils.targetScoreFontSize
+import com.example.numsprint.viewmodel.GameSessionViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun TimeAttack(overlayVisible: Boolean = false) {
-    var overlayVisible by remember { mutableStateOf(overlayVisible) }
+fun TimeAttack(overlayVisiblePreview: Boolean = false) {
+    val viewModel: GameSessionViewModel = viewModel()
+
+    var overlayVisible by remember { mutableStateOf(true) }
 
     val blurValue by animateDpAsState(
         targetValue = if (overlayVisible) 20.dp else 0.dp,
-        animationSpec = tween(durationMillis = 500), label = "BlurAnimation"
+        animationSpec = tween(durationMillis = if (!overlayVisible) 500 else 10),
+        label = "BlurAnimation"
     )
 
-//    val blurMod = if (overlayVisible) Modifier.blur(20.dp) else Modifier
+    var startGame by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
@@ -61,18 +82,76 @@ fun TimeAttack(overlayVisible: Boolean = false) {
                         .padding(innerPadding),
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .weight(0.20f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Timer()
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(0.8f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ScoreComponent(viewModel.score)
+                            }
+                            Box(
+//                                modifier = Modifier.weight(0.2f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Timer(startGame)
+                            }
+                        }
+
                     }
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .weight(0.80f)
+                            .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (!overlayVisible) {
-                            Button(onClick = { overlayVisible = true }) {
-                                Text(text = "Show overlay")
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+//                            if (!overlayVisible) {
+//                                Button(onClick = { overlayVisible = true }) {
+//                                    Text(text = "Show overlay")
+//                                }
+//                                Button(onClick = { viewModel.incrementScore()}) {
+//                                    Text(text = "Increment score")
+//                                }
+//                            }
+                            Box(
+                                modifier = Modifier.fillMaxSize().weight(0.3f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ProblemComponentV2(
+                                    viewModel.problem,
+                                    viewModel.solution,
+                                    viewModel.currentAnswer,
+                                    if (viewModel.score.toString().length > 5) 20.sp else 35.sp,
+                                    onAnimationFinish = { viewModel.cleanUpAndNext() },
+                                    isCorrect = viewModel.answerCorrect,
+                                    viewModel.previousProblem
+                                )
+                            }
+                            Box(
+                                modifier = Modifier.fillMaxSize().weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Keypad(
+                                    onKeyPressed = { key ->
+                                        viewModel.onKeyPressed(key)
+                                    },
+                                    false,
+                                    onBackspacePressed = {
+                                        viewModel.onNextClicked()
+                                    }
+                                )
                             }
                         }
                     }
@@ -85,13 +164,18 @@ fun TimeAttack(overlayVisible: Boolean = false) {
                     animationSpec = tween(500)
                 ),
                 exit = fadeOut(
-                    animationSpec = tween(500)
+                    animationSpec = tween(10)
                 )
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0x20000000)),
+                        .background(Color(0x20000000))
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = { overlayVisible = false; startGame = true }
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
@@ -126,9 +210,9 @@ fun TimeAttack(overlayVisible: Boolean = false) {
                             color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Button(onClick = { overlayVisible = false }) {
-                            Text(text = "Close overlay")
-                        }
+//                        Button(onClick = { overlayVisible = false }) {
+//                            Text(text = "Close overlay")
+//                        }
                     }
                 }
             }
@@ -139,5 +223,5 @@ fun TimeAttack(overlayVisible: Boolean = false) {
 @Preview(showBackground = true)
 @Composable
 fun TimeAttackPreview() {
-    TimeAttack(true)
+    TimeAttack(false)
 }

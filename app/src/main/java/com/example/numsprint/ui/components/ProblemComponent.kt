@@ -16,6 +16,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,6 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -57,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.numsprint.R
 import com.example.numsprint.model.Operator
 import com.example.numsprint.model.ProblemConfig
@@ -264,6 +269,7 @@ fun ProblemComponentV2(
                             slideOutVertically { fullHeight -> -fullHeight } + fadeOut()))
                             .using(SizeTransform(clip = false))
                     },
+                    label = "ProblemAnimatedContent",
                 ) { (prevQuestionTarget, currentQuestionTarget) ->
                     Column(
                         modifier = Modifier.fillMaxWidth()
@@ -275,19 +281,23 @@ fun ProblemComponentV2(
                                 .fillMaxWidth()
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.matchParentSize(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 if (prevQuestionTarget.problem.isNotBlank()) {
                                     Text(
                                         text = "${prevQuestionTarget.problem} = ${prevQuestionTarget.solution}",
+//                                        text = "2 + 3 = 5",
                                         fontSize = (textSize.value - 10).sp,
                                         textAlign = TextAlign.Center,
                                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
                                         fontFamily = fontFamily_problem
                                     )
-                                    Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                    Box(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
                                         Icon(
                                             painter = if (prevQuestionTarget.wasCorrect) painterResource(
                                                 R.drawable.baseline_check_24
@@ -313,70 +323,87 @@ fun ProblemComponentV2(
                                 .fillMaxWidth(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Row(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "$currentQuestionTarget = ",
-                                        fontSize = (textSize.value).sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                        letterSpacing = 5.sp,
-                                        fontFamily = fontFamily_problem
-                                    )
-                                    Text (
-                                        text = buildString {
-                                            val solutionStr = solution.toString()
+                            ConstraintLayout() {
+                                val (problemText, solutionText) = createRefs()
 
-                                            val userChars = usersAnswer.toCharArray()
-                                            repeat(solutionStr.length) { index ->
-                                                if (index < userChars.size) {
-                                                    append(userChars[index])
+                                Text(
+                                    text = "$currentQuestionTarget = ",
+                                    fontSize = (textSize.value).sp,
+                                    fontFamily = fontFamily_problem,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                                    letterSpacing = 2.sp,
+                                    modifier = Modifier.constrainAs(problemText) {
+                                        start.linkTo(parent.start, margin = 10.dp)
+                                    }
+                                )
+
+                                Text(
+                                    text = buildString {
+                                        val solutionStr = solution.toString()
+                                        val userChars = usersAnswer.toCharArray()
+                                        repeat(solutionStr.length) { index ->
+                                            if (index < userChars.size) {
+                                                append(userChars[index])
+                                            } else {
+                                                if (index > 0) {
+                                                    append(" _")
                                                 } else {
                                                     append("_")
                                                 }
-                                                if (index < solutionStr.length - 1) {
-                                                    append(" ")
-                                                }
                                             }
-                                        },
-                                        fontSize = (textSize.value).sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                        letterSpacing = 5.sp,
-                                        fontFamily = fontFamily_problem
-                                    )
+                                        }
+                                    },
+                                    fontSize = (textSize.value).sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                                    letterSpacing = 1.sp,
+                                    fontFamily = fontFamily_problem,
+                                    modifier = Modifier.constrainAs(solutionText) {
+                                        start.linkTo(problemText.end, 10.dp)
+                                    }
+                                )
 
-                                }
+                            }
+//                            Row(
+//                                modifier = Modifier.matchParentSize(),
+//                                horizontalArrangement = Arrangement.Center
+//                            ) {
+//                                Text(
+//                                    text = "$currentQuestionTarget = ",
+//                                    fontSize = (textSize.value).sp,
+//                                    fontFamily = fontFamily_problem,
+//                                    fontWeight = FontWeight.Bold,
+//                                    textAlign = TextAlign.Center,
+//                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+//                                    letterSpacing = 2.sp,
+//                                )
 //                                Text(
 //                                    text = buildString {
 //                                        val solutionStr = solution.toString()
-//
 //                                        val userChars = usersAnswer.toCharArray()
 //                                        repeat(solutionStr.length) { index ->
 //                                            if (index < userChars.size) {
 //                                                append(userChars[index])
 //                                            } else {
-//                                                append("_")
-//                                            }
-//                                            if (index < solutionStr.length - 1) {
-//                                                append(" ")
+//                                                if (index > 0) {
+//                                                    append(" _")
+//                                                } else {
+//                                                    append("_")
+//                                                }
 //                                            }
 //                                        }
 //                                    },
 //                                    fontSize = (textSize.value).sp,
-//                                    fontWeight = FontWeight(450),
+//                                    fontWeight = FontWeight.Bold,
 //                                    textAlign = TextAlign.Center,
-//                                    color = MaterialTheme.colorScheme.onSurface,
-//                                    modifier = Modifier.weight(1f),
-//                                    letterSpacing = 5.sp,
+//                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+//                                    letterSpacing = 1.sp,
+//                                    fontFamily = fontFamily_problem
 //                                )
-
-                            }
+//                            }
                         }
                     }
                 }

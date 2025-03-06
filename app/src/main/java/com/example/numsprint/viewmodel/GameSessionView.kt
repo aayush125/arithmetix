@@ -5,6 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.numsprint.model.DifficultyConfig
+import com.example.numsprint.model.MaxOperands
+import com.example.numsprint.model.Operator
 import com.example.numsprint.model.toExpressionString
 import com.example.numsprint.utils.generateProblem
 import kotlin.math.abs
@@ -34,6 +37,8 @@ class GameSessionViewModel() : ViewModel() {
     // Current problem's solution
     var solution by mutableStateOf(0)
         private set
+
+    var difficultyConfig by mutableStateOf(DifficultyConfig(0, listOf(), false, MaxOperands.TWO))
 
     var answerCorrect: Boolean? by mutableStateOf(null)
         private set
@@ -136,6 +141,11 @@ class GameSessionViewModel() : ViewModel() {
         val (newProblem, newSolution, newProblemConfig) = generateProblem(score)
         problem = newProblem.toExpressionString()
         solution = newSolution
+        difficultyConfig = newProblemConfig
+    }
+
+    fun incrementScore() {
+        score += 1
     }
 
     fun onAnswerDeletePress() {
@@ -145,5 +155,10 @@ class GameSessionViewModel() : ViewModel() {
             currentAnswer.length > 1 -> currentAnswer.dropLast(1)
             else -> currentAnswer
         }
+    }
+
+    fun solve() {
+        currentAnswer = solution.toString()
+        onNextClicked()
     }
 }

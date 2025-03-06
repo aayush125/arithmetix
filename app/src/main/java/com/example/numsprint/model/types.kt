@@ -2,7 +2,7 @@ package com.example.numsprint.model
 
 enum class Operator(val symbol: String) {
     MULTIPLY("x"),
-    DIVIDE("/"),
+    DIVIDE("÷"),
     ADD("+"),
     SUBTRACT("-")
 }

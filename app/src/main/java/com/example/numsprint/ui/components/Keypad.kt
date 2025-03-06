@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +34,7 @@ fun Keypad(
 
     Row() {
         Column(modifier = modifier, horizontalAlignment = Alignment.End) {
+            var keyIndex = 0
             digits.forEach { row ->
                 Row {
                     row.forEach { digit ->
@@ -42,7 +44,8 @@ fun Keypad(
                             onClick = { onKeyPressed(digit.toString()) },
                             Modifier
                                 .padding(keysPadding)
-                                .size(keySize)
+                                .size(keySize),
+                            keyIndex++
                         )
                     }
                 }
@@ -54,13 +57,15 @@ fun Keypad(
                     "-", fontSize = 50.sp, onClick = { onKeyPressed("-") },
                     Modifier
                         .padding(keysPadding)
-                        .size(keySize)
+                        .size(keySize),
+                    keyIndex++
                 )
                 KeypadKey(
                     "0", fontSize = 50.sp, onClick = { onKeyPressed("0") },
                     Modifier
                         .padding(keysPadding)
-                        .size(keySize)
+                        .size(keySize),
+                    keyIndex++
                 )
 //                KeypadKey(
 //                    ".", fontSize = 50.sp, onClick = { onKeyPressed(".") },
@@ -71,7 +76,8 @@ fun Keypad(
                 BackspaceKey(
                     Modifier
                         .padding(keysPadding)
-                        .size(keySize), onClick = { onBackspacePressed() })
+                        .size(keySize), onClick = { onBackspacePressed() }, keyIndex
+                )
             }
         }
     }

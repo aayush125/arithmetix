@@ -152,13 +152,13 @@ fun getDifficultyLevel(score: Int): DifficultyConfig {
 //    }
 //}
 
+// Generates random operands in the allowed interval.
 fun generateOperands(config: DifficultyConfig): List<Int> {
     return List(config.maxOperands.value) {
-        val num = randomIntFromInterval(
+        randomIntFromInterval(
             if (config.allowNegatives) -config.maxNumber else 0,
             config.maxNumber
         )
-        num
     }
 }
 
@@ -191,8 +191,7 @@ fun generateOperands(config: DifficultyConfig): List<Int> {
 //    }
 //}
 
-// Returns a random nonzero integer in the interval.
-// For negative-allowed configurations the range is symmetric, otherwise only positive numbers.
+// Generates a random nonzero integer in the allowed range.
 fun generateNonZero(maxNumber: Int, allowNegatives: Boolean): Int {
     var num = 0
     while (num == 0) {
@@ -205,60 +204,108 @@ fun generateNonZero(maxNumber: Int, allowNegatives: Boolean): Int {
     return num
 }
 
-// Given a divisor and the configuration, compute the bounds for a multiplier
-// so that dividend = divisor * multiplier remains in the allowed range.
+// Given a nonzero divisor and the configuration, compute bounds for a multiplier
+// so that dividend = divisor * multiplier remains within the allowed range.
 fun multiplierBounds(divisor: Int, config: DifficultyConfig): Pair<Int, Int> {
-    val max = config.maxNumber.toDouble()
+    val M = config.maxNumber.toDouble()
     return if (config.allowNegatives) {
-        // When negatives are allowed, the dividend must lie between -M and M.
         val lowerBound = if (divisor > 0)
-            kotlin.math.ceil(-max / divisor).toInt()
+            kotlin.math.ceil(-M / divisor).toInt()
         else
-            kotlin.math.ceil(max / divisor).toInt()
+            kotlin.math.ceil(M / divisor).toInt()
         val upperBound = if (divisor > 0)
-            kotlin.math.floor(max / divisor).toInt()
+            kotlin.math.floor(M / divisor).toInt()
         else
-            kotlin.math.floor(-max / divisor).toInt()
+            kotlin.math.floor(-M / divisor).toInt()
         Pair(minOf(lowerBound, upperBound), maxOf(lowerBound, upperBound))
     } else {
-        // For nonnegative numbers, the dividend should be in [0, M].
-        val lowerBound = 0
-        val upperBound = kotlin.math.floor(max / divisor).toInt()
-        Pair(lowerBound, upperBound)
+        Pair(0, kotlin.math.floor(M / divisor).toInt())
     }
 }
 
-// Generates operands that are "division-safe" when a division operator is present.
-// For each division operator, we ensure the divisor (operand at index+1) is nonzero,
-// then adjust the dividend (operand at index) to be a multiple of the divisor.
+// Helper to compute the factors of n (ignoring 0).
+fun factors(n: Int, config: DifficultyConfig): List<Int> {
+    val absN = kotlin.math.abs(n)
+    val factorList = mutableListOf<Int>()
+    if (absN == 0) return listOf(generateNonZero(config.maxNumber, config.allowNegatives))
+    for (k in 1..absN) {
+        if (absN % k == 0) {
+            factorList.add(k)
+            if (config.allowNegatives) factorList.add(-k)
+        }
+    }
+    return factorList.filter { kotlin.math.abs(it) <= config.maxNumber }
+}
+
+// Generates operands ensuring that any chain of divisions will yield an integer result.
 fun generateValidOperands(config: DifficultyConfig, operations: List<Operator>): List<Int> {
     val operands = generateOperands(config).toMutableList()
-    operations.forEachIndexed { index, operator ->
-        if (operator == Operator.DIVIDE) {
-            // Ensure the divisor is nonzero.
-            var divisor = operands[index + 1]
+    var i = 0
+    while (i < operations.size) {
+        if (operations[i] == Operator.DIVIDE) {
+            // Detect chain of consecutive divisions.
+            val chainStart = i
+            var chainEnd = i
+            while (chainEnd < operations.size && operations[chainEnd] == Operator.DIVIDE) {
+                chainEnd++
+            }
+            // The chain involves operands from chainStart to chainEnd (inclusive).
+            // --- First division in the chain ---
+            // Ensure the divisor (operand at chainStart+1) is nonzero.
+            var divisor = operands[chainStart + 1]
             if (divisor == 0) {
                 divisor = generateNonZero(config.maxNumber, config.allowNegatives)
-                operands[index + 1] = divisor
+                operands[chainStart + 1] = divisor
             }
-            // Compute allowed multiplier bounds so that dividend is within range.
+            // Adjust the dividend (operand at chainStart) to be a multiple of divisor.
             val (lb, ub) = multiplierBounds(divisor, config)
-            // Pick a multiplier randomly (if no valid range, default to 0).
             val multiplier = if (lb <= ub) randomIntFromInterval(lb, ub) else 0
-            operands[index] = divisor * multiplier
+            operands[chainStart] = divisor * multiplier
+            // Compute the intermediate result.
+            var intermediate = operands[chainStart] / divisor
+
+            // --- Subsequent divisions in the chain ---
+            for (j in (chainStart + 1) until chainEnd) {
+                // For operator at index j, the divisor is operand at index j+1.
+                var currentDivisor = operands[j + 1]
+                if (currentDivisor == 0) {
+                    currentDivisor = generateNonZero(config.maxNumber, config.allowNegatives)
+                    operands[j + 1] = currentDivisor
+                }
+                if (intermediate == 0) {
+                    // If the intermediate result is 0, any nonzero divisor works.
+                    currentDivisor = generateNonZero(config.maxNumber, config.allowNegatives)
+                    operands[j + 1] = currentDivisor
+                    // 0 divided by any nonzero number is still 0.
+                } else {
+                    // Choose a divisor that evenly divides the intermediate result.
+                    val possibleDivisors = factors(intermediate, config)
+                    if (possibleDivisors.isNotEmpty()) {
+                        currentDivisor = possibleDivisors.random()
+                        operands[j + 1] = currentDivisor
+                    }
+                }
+                // Update the intermediate result.
+                intermediate /= currentDivisor
+            }
+            // Move past the entire division chain.
+            i = chainEnd
+        } else {
+            // For non-division operators, nothing to adjust.
+            i++
         }
     }
     return operands
 }
 
-// Generates a problem, ensuring that if division is used, the operands guarantee an integer result.
+// Generates a problem ensuring that division operations yield integer results.
 fun generateProblem(score: Int): Triple<ProblemConfig, Int, DifficultyConfig> {
     val config = getDifficultyLevel(score)
     val operations = List(config.maxOperands.value - 1) {
         config.operations.random()
     }
 
-    // Use the division-safe generator if any operation is division.
+    // If any division operator is used, generate operands safely.
     val operands = if (Operator.DIVIDE in operations) {
         generateValidOperands(config, operations)
     } else {
