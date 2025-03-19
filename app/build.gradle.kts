@@ -4,12 +4,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val bundleId = "com.arithmetix.arithmetix"
+
 android {
-    namespace = "com.example.numsprint"
+    namespace = bundleId
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.numsprint"
+        applicationId = bundleId
         minSdk = 24
         targetSdk = 34
         versionCode = 1

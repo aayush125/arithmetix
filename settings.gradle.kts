@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "NumSprint"
+rootProject.name = "Arithmetix"
 include(":app")
