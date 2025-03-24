@@ -1,4 +1,4 @@
-### Arithmetix
+# Arithmetix
 
 This is still a work in progress. The core game mechanics have been implemented, but requires finishing touches.
 
