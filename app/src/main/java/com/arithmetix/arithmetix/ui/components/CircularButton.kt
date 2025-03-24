@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ fun CircularButton(
     size: Dp,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    rotate: Float = 0f,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -74,7 +76,7 @@ fun CircularButton(
                 painter = painterResource(R.drawable.baseline_arrow_forward_24),
                 contentDescription = "NextButton_Endless",
                 tint = iconColor,
-                modifier = Modifier.size((size.value - 10).dp)
+                modifier = Modifier.size((size.value - 10).dp).rotate(rotate)
             )
         }
     }

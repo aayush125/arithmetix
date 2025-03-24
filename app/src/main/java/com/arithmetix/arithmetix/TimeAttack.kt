@@ -222,7 +222,8 @@ fun TimeAttack(navController: NavController, overlayVisiblePreview: Boolean = fa
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         launchSingleTop = true
                     }
-                }
+                },
+                innerPadding = innerPadding
             )
         }
     }

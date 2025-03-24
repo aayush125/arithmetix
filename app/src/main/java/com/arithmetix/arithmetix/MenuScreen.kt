@@ -138,5 +138,5 @@ fun Menu() {
 @Preview(showBackground = true)
 @Composable
 fun MenuPreview() {
-//    Menu()
+    Menu()
 }

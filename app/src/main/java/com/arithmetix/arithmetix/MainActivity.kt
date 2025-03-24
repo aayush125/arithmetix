@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val currentTheme by themeViewModel.themePreference.collectAsState()
-            val theme = when(currentTheme) {
+            val theme = when (currentTheme) {
                 AppThemeNames.light.name -> AppTheme.light
                 AppThemeNames.dark.name -> AppTheme.dark
                 AppThemeNames.blue.name -> AppTheme.blue
@@ -47,28 +47,21 @@ class MainActivity : ComponentActivity() {
                         startDestination = NumSprintScreens.StarterScreen.name
                     ) {
                         composable(route = NumSprintScreens.TestScreen.name) {
-//                            TestScreenV2()
-//                            FloatingSymbolsBackground()
-//                            MenuBG()
-//                            Menu()
                             WitheringRedBackground()
                         }
                         composable(route = NumSprintScreens.StarterScreen.name) {
                             StarterScreen(navController)
                         }
                         composable(route = NumSprintScreens.Endless.name) {
-                            Endless()
+                            Endless(onBackNavigation = {
+                                navController.navigate(NumSprintScreens.StarterScreen.name) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            })
                         }
-//                        composable(route = "${NumSprintScreens.Endless.name}/{game_difficulty}",
-//                            arguments = listOf(
-//                                navArgument("game_difficulty") {
-//                                    type = NavType.StringType
-//                                }
-//                            )
-//                        ) {
-//                            val param = it.arguments?.getString("game_difficulty") ?: ""
-//                            Endless(difficulty = param)
-//                        }
                         composable(route = NumSprintScreens.TimeAttack.name) {
                             TimeAttack(navController)
                         }

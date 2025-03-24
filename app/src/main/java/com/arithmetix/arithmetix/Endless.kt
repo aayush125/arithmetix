@@ -1,29 +1,41 @@
 package com.arithmetix.arithmetix
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.arithmetix.arithmetix.model.GameModes
 import com.arithmetix.arithmetix.ui.components.CircularButton
 import com.arithmetix.arithmetix.ui.components.MenuBG
+import com.arithmetix.arithmetix.ui.components.NavigationButton
 import com.arithmetix.arithmetix.ui.components.ProblemKeypad
 import com.arithmetix.arithmetix.ui.components.ScoreComponent
 import com.arithmetix.arithmetix.viewmodel.GameSessionViewModel
 import com.arithmetix.arithmetix.viewmodel.GameSessionViewModelFactory
 
 @Composable
-fun Endless() {
+fun Endless(onBackNavigation: () -> Unit) {
 
     val viewModel: GameSessionViewModel = viewModel(
         factory = GameSessionViewModelFactory(GameModes.ENDLESS)
@@ -44,7 +56,21 @@ fun Endless() {
                         .weight(0.17f),
                     contentAlignment = Alignment.Center,
                 ) {
-                    ScoreComponent(viewModel.score)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        ScoreComponent(viewModel.score)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 30.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        NavigationButton(onClick = onBackNavigation)
+                    }
+
                 }
                 Box(
                     modifier = Modifier
@@ -97,5 +123,5 @@ fun Endless() {
 @Preview(showBackground = true)
 @Composable
 fun EndlessPreview() {
-    Endless()
+    Endless(onBackNavigation = { })
 }

@@ -11,13 +11,17 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -94,7 +99,8 @@ fun PostGameOverlay(
     gameOver: Boolean = false,
     score: Int,
     onPlayAgain: () -> Unit,
-    onMenu: () -> Unit
+    onMenu: () -> Unit,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     // InteractionSource to block all interactions with the game elements (e.g. keypad)
     val interactionSource = remember { MutableInteractionSource() }
@@ -193,69 +199,76 @@ fun PostGameOverlay(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = {}
-                ),
-            contentAlignment = Alignment.Center,
+                .padding(innerPadding)
+                .background(Color.Transparent)
         ) {
-            Text(
-                text = "Time's up!",
-                modifier = Modifier.offset { textOffsetHead },
-                fontSize = 40.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                text = scoreAnimation.toString(),
-                modifier = Modifier
-                    .offset { IntOffset(0, postGameTextTargetOffset + 420) }
-                    .alpha(scoreAlpha)
-                    .scale(scoreAlpha),
-                fontSize = scoreTextSize.sp,
-                fontFamily = fontFamily_score,
-                fontWeight = FontWeight.W800,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
             Box(
                 modifier = Modifier
-                    .offset(0.dp, postGameOverlayButtonOffset.dp)
-                    .alpha(playAgainButtonAlpha)
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = {}
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
-                OverlayButton(
-                    onClick = {
-                        // Reset state of this overlay
-                        isResetting = true
-                        animationState = AnimationStates.INITIAL
-                        showScore = false
-                        headOffsetY = 0
-                        scoreInternal = -1
-                        targetScoreTextSize = 120f
-                        onPlayAgain()
-
-                    },
-                    text = "Play Again",
-                    size = 30.sp,
-                    enabled = animationState >= AnimationStates.SHOW_REPLAY_BUTTON
+                Text(
+                    text = "Time's up!",
+                    modifier = Modifier.offset { textOffsetHead },
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-            }
-            Box(
-                modifier = Modifier
-                    .offset(0.dp, (postGameOverlayButtonOffset + 60).dp)
-                    .alpha(menuButtonAlpha)
-            ) {
-                OverlayButton(
-                    onClick = {
-                        onMenu()
-
-                    },
-                    text = "Menu",
-                    size = 30.sp,
-                    enabled = animationState >= AnimationStates.SHOW_MENU_BUTTON
+                Text(
+                    text = scoreAnimation.toString(),
+                    modifier = Modifier
+                        .offset { IntOffset(0, postGameTextTargetOffset + 420) }
+                        .alpha(scoreAlpha)
+                        .scale(scoreAlpha),
+                    fontSize = scoreTextSize.sp,
+                    fontFamily = fontFamily_score,
+                    fontWeight = FontWeight.W800,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
+
+                Box(
+                    modifier = Modifier
+                        .offset(0.dp, postGameOverlayButtonOffset.dp)
+                        .alpha(playAgainButtonAlpha)
+                ) {
+                    OverlayButton(
+                        onClick = {
+                            // Reset state of this overlay
+                            isResetting = true
+                            animationState = AnimationStates.INITIAL
+                            showScore = false
+                            headOffsetY = 0
+                            scoreInternal = -1
+                            targetScoreTextSize = 120f
+                            onPlayAgain()
+
+                        },
+                        text = "Play Again",
+                        size = 30.sp,
+                        enabled = animationState >= AnimationStates.SHOW_REPLAY_BUTTON
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .alpha(menuButtonAlpha)
+                        .fillMaxSize()
+                        .padding(30.dp)
+                ) {
+//                OverlayButton(
+//                    onClick = {
+//                        onMenu()
+//                    },
+//                    text = "Menu",
+//                    size = 30.sp,
+//                    enabled = animationState >= AnimationStates.SHOW_MENU_BUTTON
+//                )
+                    NavigationButton(onClick = onMenu)
+                }
             }
         }
     }
