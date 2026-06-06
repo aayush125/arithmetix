@@ -35,7 +35,7 @@ import com.arithmetix.arithmetix.viewmodel.GameSessionViewModel
 import com.arithmetix.arithmetix.viewmodel.GameSessionViewModelFactory
 
 @Composable
-fun Endless(onBackNavigation: () -> Unit) {
+fun Endless(onBackNavigation: () -> Unit, keypadReversed: Boolean) {
 
     val viewModel: GameSessionViewModel = viewModel(
         factory = GameSessionViewModelFactory(GameModes.ENDLESS)
@@ -85,7 +85,7 @@ fun Endless(onBackNavigation: () -> Unit) {
                         onKeyPressed = { key ->
                             viewModel.onKeyPressed(key)
                         },
-                        keypadReversed = false,
+                        keypadReversed = keypadReversed,
                         onBackspacePressed = {
                             viewModel.onAnswerDeletePress()
                         },
@@ -123,5 +123,5 @@ fun Endless(onBackNavigation: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun EndlessPreview() {
-    Endless(onBackNavigation = { })
+    Endless(onBackNavigation = { }, false)
 }

@@ -1,6 +1,5 @@
 package com.arithmetix.arithmetix
 
-import WitheringRedBackground
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,15 +13,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.arithmetix.arithmetix.data.PreferenceDataStoreHelper
 import com.arithmetix.arithmetix.model.AppThemeNames
+import com.arithmetix.arithmetix.model.KeypadStyles
 import com.arithmetix.arithmetix.ui.theme.AppTheme
 import com.arithmetix.arithmetix.ui.theme.NumSprintTheme
 import com.arithmetix.arithmetix.utils.NumSprintScreens
-import com.arithmetix.arithmetix.viewmodel.ThemeViewModel
-import com.arithmetix.arithmetix.viewmodel.ThemeViewModelFactory
+import com.arithmetix.arithmetix.viewmodel.LocalPreferencesViewModel
+import com.arithmetix.arithmetix.viewmodel.LocalPreferencesViewModelFactory
 
 class MainActivity : ComponentActivity() {
-    private val themeViewModel: ThemeViewModel by viewModels {
-        ThemeViewModelFactory(
+    private val localPreferencesViewModel: LocalPreferencesViewModel by viewModels {
+        LocalPreferencesViewModelFactory(
             PreferenceDataStoreHelper(applicationContext)
         )
     }
@@ -32,11 +32,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val currentTheme by themeViewModel.themePreference.collectAsState()
+            val currentTheme by localPreferencesViewModel.themePreference.collectAsState()
+            val currentKeypad by localPreferencesViewModel.keypadPreference.collectAsState()
+
             val theme = when (currentTheme) {
-                AppThemeNames.light.name -> AppTheme.light
-                AppThemeNames.dark.name -> AppTheme.dark
-                AppThemeNames.blue.name -> AppTheme.blue
+                AppThemeNames.LIGHT.name -> AppTheme.light
+                AppThemeNames.DARK.name -> AppTheme.dark
+                AppThemeNames.BLUE.name -> AppTheme.blue
                 else -> AppTheme.light
             }
             NumSprintTheme(customTheme = theme) {
@@ -47,26 +49,40 @@ class MainActivity : ComponentActivity() {
                         startDestination = NumSprintScreens.StarterScreen.name
                     ) {
                         composable(route = NumSprintScreens.TestScreen.name) {
-                            WitheringRedBackground()
+//                            WitheringRedBackground()
+                            Menu(
+                                preferencesViewModel = localPreferencesViewModel,
+                                onNavigateToGame = { gameMode -> navController.navigate(gameMode) }
+                            )
                         }
                         composable(route = NumSprintScreens.StarterScreen.name) {
-                            StarterScreen(navController)
+//                            StarterScreen(navController)
+                            Menu(
+                                preferencesViewModel = localPreferencesViewModel,
+                                onNavigateToGame = { gameMode -> navController.navigate(gameMode) }
+                            )
                         }
                         composable(route = NumSprintScreens.Endless.name) {
-                            Endless(onBackNavigation = {
-                                navController.navigate(NumSprintScreens.StarterScreen.name) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
+                            Endless(
+                                onBackNavigation = {
+                                    navController.navigate(NumSprintScreens.StarterScreen.name) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
                                     }
-                                    launchSingleTop = true
-                                }
-                            })
+                                },
+                                keypadReversed = currentKeypad == KeypadStyles.PHONE.name
+                            )
                         }
                         composable(route = NumSprintScreens.TimeAttack.name) {
-                            TimeAttack(navController)
+                            TimeAttack(
+                                navController,
+                                keypadReversed = currentKeypad == KeypadStyles.PHONE.name
+                            )
                         }
                         composable(route = NumSprintScreens.ThemeSelect.name) {
-                            ThemeSelect(viewModel = themeViewModel)
+                            ThemeSelect(viewModel = localPreferencesViewModel)
                         }
                     }
                 }

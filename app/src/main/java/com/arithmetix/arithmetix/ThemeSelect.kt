@@ -12,10 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.arithmetix.arithmetix.model.AppThemeNames
-import com.arithmetix.arithmetix.viewmodel.ThemeViewModel
+import com.arithmetix.arithmetix.viewmodel.LocalPreferencesViewModel
 
 @Composable
-fun ThemeSelect(viewModel: ThemeViewModel) {
+fun ThemeSelect(viewModel: LocalPreferencesViewModel) {
     val currentTheme by viewModel.themePreference.collectAsState()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -25,21 +25,21 @@ fun ThemeSelect(viewModel: ThemeViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(onClick = {
-                viewModel.updateTheme(AppThemeNames.dark.name)
+                viewModel.updateTheme(AppThemeNames.DARK.name)
             }) {
                 Text(
                     text = "Theme Dark"
                 )
             }
             Button(onClick = {
-                viewModel.updateTheme(AppThemeNames.blue.name)
+                viewModel.updateTheme(AppThemeNames.BLUE.name)
             }) {
                 Text(
                     text = "Theme Blue"
                 )
             }
             Button(onClick = {
-                viewModel.updateTheme(AppThemeNames.light.name)
+                viewModel.updateTheme(AppThemeNames.LIGHT.name)
             }) {
                 Text(
                     text = "Theme Light"

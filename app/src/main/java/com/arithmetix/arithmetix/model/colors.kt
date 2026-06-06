@@ -10,5 +10,10 @@ data class NS_Colors(
 )
 
 enum class AppThemeNames {
-    light, dark, blue
+    LIGHT, DARK, BLUE
+}
+
+enum class KeypadStyles {
+    CALCULATOR,
+    PHONE
 }

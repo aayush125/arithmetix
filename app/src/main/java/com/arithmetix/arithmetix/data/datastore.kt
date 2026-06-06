@@ -17,6 +17,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 object PreferencesKeys {
     val PREF_THEME = stringPreferencesKey("pref_theme")
+    val PREF_KEYPAD = stringPreferencesKey("pref_keypad")
 }
 
 interface IPreferenceDataStoreAPI {

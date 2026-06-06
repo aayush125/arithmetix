@@ -48,7 +48,7 @@ import com.arithmetix.arithmetix.viewmodel.GameSessionViewModelFactory
 import kotlinx.coroutines.delay
 
 @Composable
-fun TimeAttack(navController: NavController, overlayVisiblePreview: Boolean = false) {
+fun TimeAttack(navController: NavController, keypadReversed: Boolean, overlayVisiblePreview: Boolean = false) {
     val viewModel: GameSessionViewModel = viewModel(
         factory = GameSessionViewModelFactory(GameModes.TIME_ATTACK)
     )
@@ -81,7 +81,7 @@ fun TimeAttack(navController: NavController, overlayVisiblePreview: Boolean = fa
                     .fillMaxSize()
                     .blur(blurValue)
             ) {
-                MenuBG(startDisappearing = startGame)
+                MenuBG()
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -133,7 +133,7 @@ fun TimeAttack(navController: NavController, overlayVisiblePreview: Boolean = fa
                             onKeyPressed = { key ->
                                 viewModel.onKeyPressed(key)
                             },
-                            keypadReversed = false,
+                            keypadReversed = keypadReversed,
                             onBackspacePressed = {
                                 viewModel.onAnswerDeletePress()
                             },

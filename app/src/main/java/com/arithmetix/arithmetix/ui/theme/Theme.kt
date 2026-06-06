@@ -105,14 +105,14 @@ fun animateColorScheme(
     )
 }
 
-private val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
 
-private val BlueColorScheme = darkColorScheme(
+val BlueColorScheme = darkColorScheme(
     // #0E1D35 - Darkest blue for main background
     background = Color(0xFF0E1D35),
 
@@ -138,7 +138,7 @@ private val BlueColorScheme = darkColorScheme(
     onTertiary = Color(0xFF0E1D35)  // Dark color for content on light backgrounds
 )
 
-private val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(
 //    primary = Color(0xff615f5f),
     primary = Color(0xffc4b6b5),
     secondary = Color(0xFFE0A186),
